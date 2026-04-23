@@ -4,15 +4,16 @@ import api from './api';
 const App = () => {
   const [transactions, settransactions] = useState([]);
   const [formData, setFormData]  = useState({
-      amount: '',
-      category: '',
-      description: '',
-      is_income: false,
-      date: ''
+    amount: '',
+    category: '',
+    description: '',
+    is_income: false,
+    date: ''
+     
 });
 
 const fetchTransactions = async () => {
-  const res = await api.get('/transactions/');
+  const res = await api.get('/transactions');
   settransactions(res.data)
 };
 
@@ -25,10 +26,102 @@ const handleInputChange = (event) => {
   const value = event.target === 'checkbox' ? event.target.checked : event.target.value;
   setFormData({
     ...formData,
-    (event)
-  })
-}
+    [event.target.name]: value,
+  });
+};
 
+const handleFormSubimt = async (event) => {
+  event.preventDefault();
+  await api.post('/transactions/', formData)
+  fetchTransactions();
+  setFormData({
+    amount: '',
+    category: '',
+    description: '',
+    is_income: false,
+    date: ''
+  });
+};
+
+return (
+  <div>
+    <nav className='navbar navbar-dark bg-primary'>
+      <div className='container-fluid'>
+        <a className='navbar-brand' href=''>
+          Finance App
+        </a>
+      </div>
+    </nav>
+
+    <div className='container'>
+      <form onSubmit={handleFormSubimt}> 
+          <div className='mb-3 mt-3'>
+            <label htmFor='amount' className='form-label'>
+              Amount
+            </label>
+            <input type='text' className='form-control w-100' id='amount' name='amount' onChange={handleInputChange} value={formData.amount}/>
+          </div>
+
+          <div className='mb-3 mt-3'>
+            <label htmFor='category' className='form-label'>
+              Category
+            </label>
+            <input type='text' className='form-control' id='category' name='category' onChange={handleInputChange} value={formData.category}/>
+          </div>
+
+          <div className='mb-3 mt-3'>
+            <label htmFor='description' className='form-label'>
+              Description
+            </label>
+            <input type='text' className='form-control' id='description' name='description' onChange={handleInputChange} value={formData.description}/>
+          </div>
+
+          <div className='mb-3 mt-3'>
+            <label htmFor='is_income' className='form-label'>
+              Income?
+            </label>
+            <input type='checkbox' id='is_income' name='is_income' onChange={handleInputChange} value={formData.is_income}/>
+          </div>
+
+          <div className='mb-3 mt-3'>
+            <label htmFor='date' className='form-label'>
+              Date
+            </label>
+            <input type='text' className='form-control' id='date' name='date' onChange={handleInputChange} value={formData.date}/>
+          </div>
+
+          <button type='submit' className='btn btn-primary'>
+            Submit
+          </button>
+
+      </form>
+
+      <table className='table table-striped table-bordered table-hover'>
+        <thead>
+          <tr>
+            <th>Amount</th>
+            <th>Category</th>
+            <th>description</th>
+            <th>Income?</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {transactions.map((transaction) => (
+            <tr key={transaction.id}> {/* On ajoute la ligne avec une clé unique */}
+              <td>{transaction.amount}</td>
+              <td>{transaction.category}</td>
+              <td>{transaction.description}</td>
+              <td>{transaction.is_income ? 'Revenu' : 'Dépense'}</td>
+              <td>{transaction.date}</td>
+            </tr>
+          ))} 
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+)
 
 }
 
